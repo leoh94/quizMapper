@@ -32,14 +32,14 @@ var popup = L.popup();
 
 // create an event detector to wait for the user's click event and then use the popup to show them where they clicked
 // note that you don't need to do any complicated maths to convert screen coordinates to real world coordiantes - the Leaflet API does this for you
-function onMapClick(e) {
+/*function onMapClick(e) {
 	popup
 	.setLatLng(e.latlng)
 	.setContent("You clicked the map at " + e.latlng.toString())
 	.openOn(mymap);
 	}
 	// now add the click event detector to the map
-	mymap.on('click', onMapClick);
+	mymap.on('click', onMapClick);*/
 
 function trackLocation() {
     if (navigator.geolocation) {
@@ -66,6 +66,6 @@ function loadMap(){
 
 } 
 
-function showPointLineCircle(){
+//function showPointLineCircle(){
 	// add a point
-	L.marker([51.5, -0.09]).addTo(mymap).bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
+	//L.marker([51.5, -0.09]).addTo(mymap).bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
