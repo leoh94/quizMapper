@@ -1,5 +1,6 @@
 // the variables
 // and a variable that will hold the layer itself – we need to do this outside the function so that we can use it to remove the layer later on 
+var earthquakelayer;
 // a global variable to hold the http request
 var client;
 // store the map
@@ -84,6 +85,51 @@ function calculateDistance(lat1, lon1, lat2, lon2, unit) {
 	if (unit=="K") { dist = dist * 1.609344 ;} // convert miles to km
 	if (unit=="N") { dist = dist * 0.8684 ;} // convert miles to nautical miles
 	return dist;
+}
+
+// call the server
+function getGeoJSON() {
+   // set up the request
+   client = new XMLHttpRequest();
+   // make the request to the URL
+   client.open('GET','http://developer.cege.ucl.ac.uk:30263/getGeoJSON/uk_highway_subset/geom');
+   // tell the request what method to run that will listen for the response
+   client.onreadystatechange = earthquakeResponse;  // note don't use earthquakeResponse() with brackets as that doesn't work
+   // activate the request
+   client.send();
+}
+// receive the response
+function earthquakeResponse() {
+  // wait for a response - if readyState is not 4 then keep waiting 
+  if (client.readyState == 4) {
+    // get the data from the response
+    var earthquakedata = client.responseText;
+    // call a function that does something with the data
+    loadearthquakelayer(earthquakedata);
+  }
+}
+function loadearthquakelayer(earthquakedata) {
+      // convert the text received from the server to JSON 
+      var earthquakejson = JSON.parse(earthquakedata );
+
+      // load the geoJSON layer
+      var earthquakelayer = L.geoJson(earthquakejson,
+        {
+            // use point to layer to create the points
+            pointToLayer: function (feature, latlng)
+            {
+              // look at the GeoJSON file - specifically at the properties - to see the earthquake magnitude and use a different marker depending on this value
+              // also include a pop-up that shows the place value of the earthquakes
+              if (feature.properties.mag > 1.75) {
+                 return L.marker(latlng, {icon:testMarkerRed}).bindPopup("<b>"+feature.properties.place +"</b>");
+              }
+              else {
+                // magnitude is 1.75 or less
+                return L.marker(latlng, {icon:testMarkerPink}).bindPopup("<b>"+feature.properties.place +"</b>");;
+              }
+            },
+        }).addTo(mymap); 
+    mymap.fitBounds(earthquakelayer.getBounds());
 }
 
 
