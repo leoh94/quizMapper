@@ -115,10 +115,10 @@ function loadearthquakelayer(earthquakedata) {
       // load the geoJSON layer
       var earthquakelayer = L.geoJson(earthquakejson,
         {
-            // use point to layer to create the points
+			// use point to layer to create the points
             pointToLayer: function (feature, latlng)
             {
-				L.marker(latlng, {icon:testMarkerRed}).bindPopup("<b>"+feature.properties.site_location +"</b>");
+				return L.marker(latlng, {icon:testMarkerRed}).bindPopup("<b>"+feature.properties.site_location +"</b>");
 			},
         }).addTo(mymap);
 		mymap.fitBounds(earthquakelayer.getBounds());
