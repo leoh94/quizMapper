@@ -53,7 +53,7 @@ function showPosition(position) {
 	}
 	var radius = 25;
 	// user location as pink marker
-	user = L.marker([position.coords.latitude, position.coords.longitude], {icon:testMarkerPink}).addTo(mymap);
+	user = L.marker([position.coords.latitude, position.coords.longitude]).addTo(mymap);
 	//radius of 25m around user location
 	userRadius = L.circle([position.coords.latitude, position.coords.longitude], radius).addTo(mymap);
 	if(tracker){
