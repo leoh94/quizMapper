@@ -1,6 +1,6 @@
 // the variables
 // and a variable that will hold the layer itself – we need to do this outside the function so that we can use it to remove the layer later on 
-var earthquakelayer;
+var getGeoJSON;
 // a global variable to hold the http request
 var client;
 // store the map
@@ -117,7 +117,7 @@ function loadearthquakelayer(earthquakedata) {
 			// use point to layer to create the points
             pointToLayer: function (feature, latlng)
             {
-				qMarker = L.marker(latlng);
+				qMarker = L.marker(latlng, {icon:testMarkerRed});
 				return qMarker.bindPopup("<b>"+feature.properties.site_location +"</b>");
 			},
         }).addTo(mymap);
