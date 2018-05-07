@@ -101,25 +101,25 @@ function getGeoJSON() {
    // make the request to the URL
    client.open('GET','http://developer.cege.ucl.ac.uk:30263/getData');
    // tell the request what method to run that will listen for the response
-   client.onreadystatechange = earthquakeResponse;  // note don't use earthquakeResponse() with brackets as that doesn't work
+   client.onreadystatechange = dataResponse; 
    // activate the request
    client.send();
 }
 // receive the response
-function earthquakeResponse() {
+function dataResponse() {
   // wait for a response - if readyState is not 4 then keep waiting 
   if (client.readyState == 4) {
     // get the data from the response
-    var earthquakedata = client.responseText;
+    var Geodata = client.responseText;
     // call a function that does something with the data
-    loadearthquakelayer(earthquakedata);
+    loadDatalayer(Geodata);
   }
 }
-function loadearthquakelayer(earthquakedata) {
+function loadDatalayer(Geodata) {
       // convert the text received from the server to JSON 
-      var earthquakejson = JSON.parse(earthquakedata );
+      var Datajson = JSON.parse(Geodata );
       // load the geoJSON layer
-      var earthquakelayer = L.geoJson(earthquakejson,
+      var Datalayer = L.geoJson(Datajson,
         {
 			// use point to layer to create the points
             pointToLayer: function (feature, latlng){
@@ -127,9 +127,135 @@ function loadearthquakelayer(earthquakedata) {
 				return qMarker.bindPopup("<b>"+feature.properties.site_location +"</b>");
 			},
         }).addTo(mymap);
-		mymap.fitBounds(earthquakelayer.getBounds());
+		mymap.fitBounds(Datalayer.getBounds());
 }
 
+// Determine the users distance from each question marker 
+function checkQuestionDistance(questionMarkers){
+	// Get users current location
+	alert("Checking if you are within 25m of a question"); 
+	/* Loop each question latlng to determine if any are within 
+	25m of the users location */
+	for(var i=0; i<qMarker.length; i++) {
+	    currentMarker = qMarker[i];
+	    currentMarker_latlng = currentMarker.getLatLng();
+		// Assign to the distance variable
+	    var distance = calculateDistance(currentMarker_latlng.lat, currentMarker_latlng.lng, position.coords.latitude, position.coords.longitude, 'K');
+	    if (distance <= 0.025) {
+			alert("Click Your Nearest Marker");
+			qMarker[i].on('click', onClick);
+        } else {
+			qMarker[i].bindPopup("Get closer to the question to answer!");
+        }
+	}
+}
+
+// Global variable for the clicked marker
+var Clicked;
+
+// The marker clicked on the leaflet map is assigned and the qClicked function initiated 
+function onClick(e) {
+	questionClick(this);
+	Clicked = this;
+}
+
+function questionClick(clickedQuestion) {
+	// Replace leaflet map div with div holding the question 
+	document.getElementById('questionDiv').style.display = 'block';
+	document.getElementById('mapid').style.display = 'none';
+	// Retrieve the relevant information
+	document.getElementById("question").value = clickedQuestion.feature.properties.question;
+	document.getElementById("answer_1").value = clickedQuestion.feature.properties.answer_1;
+	document.getElementById("answer_2").value = clickedQuestion.feature.properties.answer_2;
+	document.getElementById("answer_3").value = clickedQuestion.feature.properties.answer_3;
+	document.getElementById("answer_4").value = clickedQuestion.feature.properties.answer_4;
+	/*Create the way the user will answer the question
+	Make all buttons unchecked initially */
+	document.getElementById("radioCheck1").checked = false;
+	document.getElementById("radioCheck2").checked = false;
+	document.getElementById("radioCheck3").checked = false;
+	document.getElementById("radioCheck4").checked = false;
+	mClicked = clickedQuestion;
+}
+
+// Error handing - ensure a radio button is checked
+function submitUserAnswer() {
+        var c1=document.getElementById("radioCheck1").checked;
+        var c2=document.getElementById("radioCheck2").checked;
+        var c3=document.getElementById("radioCheck3").checked;
+        var c4=document.getElementById("radioCheck4").checked; 
+        if (c1==false && c2==false && c3==false && c4==false)
+        {
+            alert("Please select an answer.");
+			return false;
+        }
+        else 
+        {        
+        	uploadAnswer()
+        }
+}
+
+// Variable used to determine if user answer is correct
+var answerTrue;
+
+// Submit answer to the database 
+function uploadAnswer() {
+	alert ("Submitting...");
+	// Assign the question's correct answer
+	var cAnswer = Clicked.feature.properties.correct;
+	// Assign the question
+	var question = document.getElementById("question").value;
+	// Variable used to assign the users answer
+	var answer;
+	// Variable used in uploading the relevant information to the app_answers database table
+	var postString = "question="+question; 
+
+	// now get the radio button values
+	if (document.getElementById("radioCheck1").checked) {
+		answer = 1;
+        postString=postString+"&answer="+answer;
+    }
+    if (document.getElementById("radioCheck2").checked) {
+		answer = 2;
+    	postString=postString+"&answer="+answer;
+    }
+	if (document.getElementById("radioCheck3").checked) {
+		answer =3;
+		postString=postString+"&answer="+answer;
+	}
+	if (document.getElementById("radioCheck4").checked) {
+		answer =4;
+		postString=postString+"&answer="+answer;
+	}
+	//Determine if the user got the question correct and alert them appropriately
+	if (answer == cAnswer) {
+		alert("Correct!");
+		answerTrue = true;
+	} else {
+		alert("Sorry, your answer of " +answer+" is incorrect! \n The correct answer is: " + cAnswer);
+		answerTrue = false;
+	}
+	postString = postString + "&cAnswer="+cAnswer;
+	processAnswer(postString);
+}
+
+// Uploads answer data in postString variable to the database using XMLHttpRequest(
+function processAnswer(postString) {
+   client = new XMLHttpRequest();
+   client.open('POST','http://developer.cege.ucl.ac.uk:30263/uploadAnswer',true);
+   client.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+   client.onreadystatechange = answerSubmitted;  
+   client.send(postString);
+}
+
+// Receive the response from the data server and process it
+function answerSubmitted() {
+  // Wait until data is ready - i.e. readyState is 4
+  if (client.readyState == 4) {
+	document.getElementById('questions').style.display = 'none';
+	document.getElementById('mapid').style.display = 'block';
+	}
+}
 
 //function showPointLineCircle(){
 	// add a point

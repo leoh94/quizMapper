@@ -143,7 +143,27 @@
 		<div id="mapid" style="width: 1600px; height: 400px;"></div>
 	  </div>
 	  <div id='showDistance'>Distance To Warren Street <button id='getDistance' onclick=getDistance()>Calculate Distance</button></div>
-      </main>
+      <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid" >
+	  <div id = "questions" style=display:none">
+		<h2 id="qheader"> Please answer the following question:</h2>
+		<textarea readonly id="question" style="border: none; width:100%" ></textarea>
+		
+		<textarea readonly id = "answer1"></textarea>
+        <input type="radio" name="answer" id = radioCheck1 value="1" checked="yes" /><br />
+
+        <textarea readonly id = "answer2"></textarea>
+        <input type="radio" name="answer" id = radioCheck2 value="2"/><br />
+
+        <textarea readonly id = "answer3"></textarea>
+        <input type="radio" name="answer" id = radioCheck3 value="3"/><br />
+
+        <textarea readonly id = "answer4"></textarea>
+        <input type="radio" name="answer" id = radioCheck4 value="4"/><br />
+
+        <button id="submitButton" onclick ="submitUserAnswer()">Submit Answer</button>
+		</div>
+	  </div>
+	  </main>
 	<script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 	<script src="./js/appActivity.js"></script>
 	<script src="./js/uploadData.js"> </script>
