@@ -28,18 +28,42 @@ var popup = L.popup();
 		
 // ***********************************
 // the functions
+var tracker = true;
+var user;
+var userRadius;
+var autoPan = false;
 
 function trackLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(showPosition);
-    } else {
-		alert("geolocation is not supported by this browser");
-    }
+	if (!tracker){
+		mymap.fitBounds(user.getLatLng().toBounds(250));
+		autoPan = true;
+	} else {
+		if (navigator.geolocation) {
+			alert("Tracking Your Location");
+			navigator.geolocation.watchPosition(showPosition);
+		} else {
+			alert("geolocation is not supported by this browser");
+		}
+	}
 }
 function showPosition(position) {
-	// draw a point on the map
-	L.marker([position.coords.latitude, position.coords.longitude]).addTo(mymap).bindPopup("<b>You were at "+ position.coords.longitude + " "+position.coords.latitude+"!</b>");mymap.setView([position.coords.latitude, position.coords.longitude], 13);
+	if(!tracker){
+		mymap.removeLayer(user);
+		mymap.removeLayer(userRadius);
 	}
+	var radius = 25;
+	// user location as pink marker
+	user = L.marker([position.coords.latitude, position.coords.longitude], {icon:testMarkerPink}).addTo(mymap);
+	//radius of 25m around user location
+	userRadius = L.circle([position.coords.latitude, position.coords.longitude], radius).addTo(mymap);
+	if(tracker){
+		tracker = false;
+		mymap.fitBounds(user.getLatLng().toBounds(250));
+		autoPan = true;
+	}else if (autoPan) {
+		mymap.panTo(user.getLatLng());
+	}
+}
 
 function loadMap(){
 		mymap = L.map('mapid').setView([51.505, -0.09], 13);
