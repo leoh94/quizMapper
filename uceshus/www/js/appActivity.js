@@ -92,7 +92,7 @@ function getGeoJSON() {
    // set up the request
    client = new XMLHttpRequest();
    // make the request to the URL
-   client.open('GET','http://developer.cege.ucl.ac.uk:30263/getGeoJSON/uk_highway_subset/geom');
+   client.open('GET','http://developer.cege.ucl.ac.uk:30263/getGeoJSON/appdata/geom');
    // tell the request what method to run that will listen for the response
    client.onreadystatechange = earthquakeResponse;  // note don't use earthquakeResponse() with brackets as that doesn't work
    // activate the request
@@ -118,18 +118,10 @@ function loadearthquakelayer(earthquakedata) {
             // use point to layer to create the points
             pointToLayer: function (feature, latlng)
             {
-              // look at the GeoJSON file - specifically at the properties - to see the earthquake magnitude and use a different marker depending on this value
-              // also include a pop-up that shows the place value of the earthquakes
-              if (feature.properties.mag > 1.75) {
-                 return L.marker(latlng, {icon:testMarkerRed}).bindPopup("<b>"+feature.properties.place +"</b>");
-              }
-              else {
-                // magnitude is 1.75 or less
-                return L.marker(latlng, {icon:testMarkerPink}).bindPopup("<b>"+feature.properties.place +"</b>");;
-              }
-            },
-        }).addTo(mymap); 
-    mymap.fitBounds(earthquakelayer.getBounds());
+				L.marker(latlng, {icon:testMarkerRed}).bindPopup("<b>"+feature.properties.site_location +"</b>");
+			},
+        }).addTo(mymap);
+		mymap.fitBounds(earthquakelayer.getBounds());
 }
 
 
