@@ -34,35 +34,18 @@ var userRadius;
 var autoPan = false;
 
 function trackLocation() {
-	if (!tracker){
-		mymap.fitBounds(user.getLatLng().toBounds(250));
-		autoPan = true;
-	} else {
 		if (navigator.geolocation) {
-			alert("Tracking Your Location");
 			navigator.geolocation.watchPosition(showPosition);
 		} else {
 			alert("geolocation is not supported by this browser");
 		}
-	}
 }
 function showPosition(position) {
-	if(!tracker){
-		mymap.removeLayer(user);
-		mymap.removeLayer(userRadius);
-	}
 	var radius = 25;
 	// user location as pink marker
 	user = L.marker([position.coords.latitude, position.coords.longitude]).addTo(mymap);
 	//radius of 25m around user location
 	userRadius = L.circle([position.coords.latitude, position.coords.longitude], radius).addTo(mymap);
-	if(tracker){
-		tracker = false;
-		mymap.fitBounds(user.getLatLng().toBounds(250));
-		autoPan = true;
-	}else if (autoPan) {
-		mymap.panTo(user.getLatLng());
-	}
 }
 
 function loadMap(){
