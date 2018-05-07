@@ -116,7 +116,8 @@ function loadearthquakelayer(earthquakedata) {
         {
 			// use point to layer to create the points
             pointToLayer: function (feature, latlng){
-				return L.marker(latlng, {icon:testMarkerPink}).bindPopup("<b>"+feature.properties.site_location +"</b>");
+				qMarker = L.marker(latlng)
+				return qMarker.bindPopup("<b>"+feature.properties.site_location +"</b>");
 			},
         }).addTo(mymap);
 		mymap.fitBounds(earthquakelayer.getBounds());
