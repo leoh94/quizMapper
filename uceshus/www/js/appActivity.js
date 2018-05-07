@@ -111,16 +111,15 @@ function earthquakeResponse() {
 function loadearthquakelayer(earthquakedata) {
       // convert the text received from the server to JSON 
       var earthquakejson = JSON.parse(earthquakedata );
-
       // load the geoJSON layer
       var earthquakelayer = L.geoJson(earthquakejson,
         {
 			// use point to layer to create the points
             pointToLayer: function (feature, latlng)
             {
-				return L.marker(latlng, {icon:testMarkerPink}).bindPopup("<b>"+feature.properties.site_location +"</b>");
+				return L.marker(latlng, {icon:testMarkerPink});
 			},
-        }).addTo(mymap);
+        }).addTo(mymap).bindPopup("<b>"+feature.properties.site_location +"</b>");
 		mymap.fitBounds(earthquakelayer.getBounds());
 }
 
