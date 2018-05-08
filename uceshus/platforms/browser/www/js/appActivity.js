@@ -38,10 +38,6 @@ var popup = L.popup();
 		
 // ***********************************
 // the functions
-var tracker = true;
-var user;
-var userRadius;
-var autoPan = false;
 
 function trackLocation() {
 		if (navigator.geolocation) {
@@ -70,6 +66,70 @@ function loadMap(){
 		}).addTo(mymap);
 
 } 
+qMarker = [];
+var Datalayer;
+
+// call the server
+function getGeoJSON() {
+   // set up the request
+   client = new XMLHttpRequest();
+   // make the request to the URL
+   client.open('GET','http://developer.cege.ucl.ac.uk:30263/getData');
+   // tell the request what method to run that will listen for the response
+   client.onreadystatechange = dataResponse; 
+   // activate the request
+   client.send();
+}
+// receive the response
+function dataResponse() {
+  // wait for a response - if readyState is not 4 then keep waiting 
+  if (client.readyState == 4) {
+    // get the data from the response
+    var Geodata = client.responseText;
+    // call a function that does something with the data
+    loadDatalayer(Geodata);
+  }
+}
+function loadDatalayer(Geodata) {
+      // convert the text received from the server to JSON 
+      var Datajson = JSON.parse(Geodata );
+      // load the geoJSON layer
+      var Datalayer = L.geoJson(Datajson,
+        {
+			// use point to layer to create the points
+            pointToLayer: function (feature, latlng){
+				PointMark = L.marker(latlng)
+				PointMark.bindPopup("<b>"+feature.properties.site_location +"</b>");
+			qMarker.push(PointMark);
+			return PointMark;
+				
+			},
+        }).addTo(mymap);
+		mymap.fitBounds(Datalayer.getBounds());
+}
+
+/*Adapted from:
+https://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript 
+&
+https://www.geodatasource.com/developers/javascript */
+function getDistanceFromLatLonInM(lat1,lon1,lat2,lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; // Distance in km
+  var d2 = d * 1000;
+  return d2;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}
 
 function getDistance() {
 	// getDistanceFromPoint is the function called once the distance has been found
@@ -104,64 +164,6 @@ function calculateDistance(lat1, lon1, lat2, lon2, unit) {
 	return dist;
 }
 
-// call the server
-function getGeoJSON() {
-   // set up the request
-   client = new XMLHttpRequest();
-   // make the request to the URL
-   client.open('GET','http://developer.cege.ucl.ac.uk:30263/getData');
-   // tell the request what method to run that will listen for the response
-   client.onreadystatechange = dataResponse; 
-   // activate the request
-   client.send();
-}
-// receive the response
-function dataResponse() {
-  // wait for a response - if readyState is not 4 then keep waiting 
-  if (client.readyState == 4) {
-    // get the data from the response
-    var Geodata = client.responseText;
-    // call a function that does something with the data
-    loadDatalayer(Geodata);
-  }
-}
-function loadDatalayer(Geodata) {
-      // convert the text received from the server to JSON 
-      var Datajson = JSON.parse(Geodata );
-      // load the geoJSON layer
-      var Datalayer = L.geoJson(Datajson,
-        {
-			// use point to layer to create the points
-            pointToLayer: function (feature, latlng){
-				qMarker = L.marker(latlng)
-				return qMarker.bindPopup("<b>"+feature.properties.site_location +"</b>");
-			},
-        }).addTo(mymap);
-		mymap.fitBounds(Datalayer.getBounds());
-}
-
-/*Adapted from:
-https://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript 
-&
-https://www.geodatasource.com/developers/javascript */
-function getDistanceFromLatLonInM(lat1,lon1,lat2,lon2) {
-  var R = 6371; // Radius of the earth in km
-  var dLat = deg2rad(lat2-lat1);  // deg2rad below
-  var dLon = deg2rad(lon2-lon1); 
-  var a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2)
-    ; 
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-  var d = R * c; // Distance in km
-  var d2 = d * 1000;
-  return d2;
-}
-
-function deg2rad(deg) {
-  return deg * (Math.PI/180)
-}
 
 function closeDistanceQuestions(){
 	checkQuestionDistance(qMarker);
