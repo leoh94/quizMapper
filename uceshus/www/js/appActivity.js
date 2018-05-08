@@ -130,8 +130,11 @@ function loadDatalayer(Geodata) {
 		mymap.fitBounds(Datalayer.getBounds());
 }
 
+function closeDistanceQuestions(){
+	checkQuestionDistance(qMarker);
+}
 // Determine the users distance from each question marker 
-function checkQuestionDistance(questionMarkers){
+function checkQuestionDistance(qMarker){
 	// Get users current location
 	alert("Checking if you are within 25m of a question"); 
 	/* Loop each question latlng to determine if any are within 
