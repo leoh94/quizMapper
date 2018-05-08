@@ -1,5 +1,4 @@
 // the variables
-// and a variable that will hold the layer itself – we need to do this outside the function so that we can use it to remove the layer later on 
 var getGeoJSON;
 // a global variable to hold the http request
 var client;
@@ -32,6 +31,7 @@ var popup = L.popup();
 
 	loadMap();
 	trackLocation();
+	getGeoJSON();
 	//showPointLineCircle();
 	
 		
@@ -48,9 +48,9 @@ function trackLocation() {
 }
 function showPosition(position) {
 	var radius = 25;
-	// user location as pink marker
+	// user location
 	user = L.marker([position.coords.latitude, position.coords.longitude]).bindPopup("<b>You Are Here!</b>").addTo(mymap);
-	//radius of 25m around user location
+	//radius of 25m around user location (for user convenience to visually identify close question points) 
 	userRadius = L.circle([position.coords.latitude, position.coords.longitude], radius).addTo(mymap);
 }
 
@@ -75,14 +75,14 @@ function getGeoJSON() {
    client = new XMLHttpRequest();
    // make the request to the URL
    client.open('GET','http://developer.cege.ucl.ac.uk:30263/getData');
-   // tell the request what method to run that will listen for the response
+   // tell request what method to run that will listen for the response
    client.onreadystatechange = dataResponse; 
-   // activate the request
+   // activate request
    client.send();
 }
 // receive the response
 function dataResponse() {
-  // wait for a response - if readyState is not 4 then keep waiting 
+  // wait for a response: 4 = Ready
   if (client.readyState == 4) {
     // get the data from the response
     var Geodata = client.responseText;
@@ -96,7 +96,7 @@ function loadDatalayer(Geodata) {
       // load the geoJSON layer
       var Datalayer = L.geoJson(Datajson,
         {
-			// use point to layer to create the points
+			// use point to layer to create question points
             pointToLayer: function (feature, latlng){
 				PointMark = L.marker(latlng)
 				PointMark.bindPopup("<b>"+feature.properties.site_location +"</b>");
@@ -107,12 +107,10 @@ function loadDatalayer(Geodata) {
         }).addTo(mymap);
 		mymap.fitBounds(Datalayer.getBounds());
 }
-
-/*Adapted from:
-https://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript 
-&
-https://www.geodatasource.com/developers/javascript */
-function getDistanceFromLatLonInM(lat1,lon1,lat2,lon2) {
+//=========== DISTANCE CALCULATION BETWEEN USER & QUESTION POINTS ===============/
+//Distance Calculation sourced from:
+//https://www.geodatasource.com/developers/javascript
+function getDistanceMiles(lat1,lon1,lat2,lon2) {
   var R = 6371; // Radius of the earth in km
   var dLat = deg2rad(lat2-lat1);  // deg2rad below
   var dLon = deg2rad(lon2-lon1); 
@@ -122,7 +120,7 @@ function getDistanceFromLatLonInM(lat1,lon1,lat2,lon2) {
     Math.sin(dLon/2) * Math.sin(dLon/2)
     ; 
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-  var d = R * c; // Distance in km
+  var d = R * c; // Conversion to Kilometers
   var d2 = d * 1000;
   return d2;
 }
@@ -131,6 +129,7 @@ function deg2rad(deg) {
   return deg * (Math.PI/180)
 }
 
+//============ DISTANCE CALCULATION BETWEEN USER & WARREN STREET STATION =============/
 function getDistance() {
 	// getDistanceFromPoint is the function called once the distance has been found
 	navigator.geolocation.getCurrentPosition(getDistanceFromPoint);
@@ -163,7 +162,7 @@ function calculateDistance(lat1, lon1, lat2, lon2, unit) {
 	if (unit=="N") { dist = dist * 0.8684 ;} // convert miles to nautical miles
 	return dist;
 }
-
+//=====================================
 
 function closeDistanceQuestions(){
 	checkQuestionDistance(qMarker);
@@ -173,13 +172,12 @@ function checkQuestionDistance(questionMarker){
 	// Get users current location
 	latlng = user.getLatLng();
 	alert("Checking if you are within 25m of a question"); 
-	/* Loop each question latlng to determine if any are within 
-	25m of the users location */
+	//Loop question location to track if within 25m from user
 	for(var i=0; i<questionMarker.length; i++) {
 	    currentMarker = questionMarker[i];
 	    currentMarker_latlng = currentMarker.getLatLng();
-		// Assign to the distance variable
-	    var distance = getDistanceFromLatLonInM(currentMarker_latlng.lat, currentMarker_latlng.lng, latlng.lat, latlng.lng);
+		// Push to distance
+	    var distance = getDistanceMiles(currentMarker_latlng.lat, currentMarker_latlng.lng, latlng.lat, latlng.lng);
 	    if (distance <= 25) {
 			questionMarker[i].on('click', onClick);
         } else {
@@ -191,24 +189,24 @@ function checkQuestionDistance(questionMarker){
 // Global variable for the clicked marker
 var Clicked;
 
-// The marker clicked on the leaflet map is assigned and the qClicked function initiated 
+// Click function initiates questionClick (question form div appears after click on map) 
 function onClick(e) {
 	questionClick(this);
 	Clicked = this;
 }
 
 function questionClick(clickedQuestion) {
-	// Replace leaflet map div with div holding the question 
+	// Replace leaflet map div with questions div
 	document.getElementById('questions').style.display = 'block';
 	document.getElementById('mapid').style.display = 'none';
-	// Retrieve the relevant information
+	// Receive Data
 	document.getElementById("question").value = clickedQuestion.feature.properties.question;
 	document.getElementById("answer1").value = clickedQuestion.feature.properties.answer1;
 	document.getElementById("answer2").value = clickedQuestion.feature.properties.answer2;
 	document.getElementById("answer3").value = clickedQuestion.feature.properties.answer3;
 	document.getElementById("answer4").value = clickedQuestion.feature.properties.answer4;
-	/*Create the way the user will answer the question
-	Make all buttons unchecked initially */
+	//Create radio button answers
+	//Make all buttons unchecked initially
 	document.getElementById("radioCheck1").checked = false;
 	document.getElementById("radioCheck2").checked = false;
 	document.getElementById("radioCheck3").checked = false;
@@ -216,7 +214,7 @@ function questionClick(clickedQuestion) {
 	Clicked = clickedQuestion;
 }
 
-// Error handing - ensure a radio button is checked
+// Answer selection requirement
 function submitUserAnswer() {
         var c1=document.getElementById("radioCheck1").checked;
         var c2=document.getElementById("radioCheck2").checked;
@@ -233,22 +231,21 @@ function submitUserAnswer() {
         }
 }
 
-// Variable used to determine if user answer is correct
+// Variable to tell user answer is correct or not.
 var answerTrue;
 
 // Submit answer to the database 
 function uploadAnswer() {
 	alert ("Submitting...");
-	// Assign the question's correct answer
+	// correct answer
 	var cAnswer = Clicked.feature.properties.correct;
-	// Assign the question
+	// Assign question
 	var question = document.getElementById("question").value;
-	// Variable used to assign the users answer
+	// Assign users answer
 	var answer;
-	// Variable used in uploading the relevant information to the app_answers database table
+	// Upload user input to appAnswers database
 	var postString = "question="+question; 
 
-	// now get the radio button values
 	if (document.getElementById("radioCheck1").checked) {
 		answer = 1;
         postString=postString+"&answer="+answer;
@@ -265,12 +262,12 @@ function uploadAnswer() {
 		answer =4;
 		postString=postString+"&answer="+answer;
 	}
-	//Determine if the user got the question correct and alert them appropriately
+	//Tell user if correct or not.
 	if (answer == cAnswer) {
 		alert("Correct!");
 		answerTrue = true;
 	} else {
-		alert("Sorry, your answer of " +answer+" is incorrect! \n The correct answer is: " + cAnswer);
+		alert("Sorry, your answer" +answer+" is incorrect! \n The correct answer is: " + cAnswer);
 		answerTrue = false;
 	}
 	postString = postString + "&cAnswer="+cAnswer;
@@ -286,15 +283,11 @@ function processAnswer(postString) {
    client.send(postString);
 }
 
-// Receive the response from the data server and process it
+// Receive the response and process
 function answerSubmitted() {
-  // Wait until data is ready - i.e. readyState is 4
+  // 4 = Ready 
   if (client.readyState == 4) {
 	document.getElementById('questions').style.display = 'none';
 	document.getElementById('mapid').style.display = 'block';
 	}
 }
-
-//function showPointLineCircle(){
-	// add a point
-	//L.marker([51.5, -0.09]).addTo(mymap).bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
