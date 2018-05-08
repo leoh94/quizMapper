@@ -181,10 +181,8 @@ function checkQuestionDistance(questionMarker){
 		// Assign to the distance variable
 	    var distance = getDistanceFromLatLonInM(currentMarker_latlng.lat, currentMarker_latlng.lng, latlng.lat, latlng.lng);
 	    if (distance <= 25) {
-			questionMarkers[i].setIcon(testMarkerBlue);
 			questionMarker[i].on('click', onClick);
         } else {
-			questionMarkers[i].setIcon(testMarkerOrange);
 			questionMarker[i].bindPopup("Get closer to the question to answer!");
         }
 	}
