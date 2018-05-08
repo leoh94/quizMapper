@@ -199,13 +199,14 @@ function onClick(e) {
 
 function questionClick(clickedQuestion) {
 	// Replace leaflet map div with div holding the question 
-	document.getElementById('questionDiv').style.display = 'block';
+	document.getElementById('questions').style.display = 'block';
+	document.getElementById('mapid').style.display = 'none';
 	// Retrieve the relevant information
 	document.getElementById("question").value = clickedQuestion.feature.properties.question;
-	document.getElementById("answer_1").value = clickedQuestion.feature.properties.answer_1;
-	document.getElementById("answer_2").value = clickedQuestion.feature.properties.answer_2;
-	document.getElementById("answer_3").value = clickedQuestion.feature.properties.answer_3;
-	document.getElementById("answer_4").value = clickedQuestion.feature.properties.answer_4;
+	document.getElementById("answer1").value = clickedQuestion.feature.properties.answer1;
+	document.getElementById("answer2").value = clickedQuestion.feature.properties.answer2;
+	document.getElementById("answer3").value = clickedQuestion.feature.properties.answer3;
+	document.getElementById("answer4").value = clickedQuestion.feature.properties.answer4;
 	/*Create the way the user will answer the question
 	Make all buttons unchecked initially */
 	document.getElementById("radioCheck1").checked = false;
