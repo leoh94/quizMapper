@@ -169,7 +169,6 @@ function checkQuestionDistance(questionMarker){
 		// Assign to the distance variable
 	    var distance = getDistanceFromLatLonInM(currentMarker_latlng.lat, currentMarker_latlng.lng, latlng.lat, latlng.lng);
 	    if (distance <= 25) {
-			alert("Click Your Nearest Marker");
 			questionMarker[i].on('click', onClick);
         } else {
 			questionMarker[i].bindPopup("Get closer to the question to answer!");
@@ -189,7 +188,6 @@ function onClick(e) {
 function questionClick(clickedQuestion) {
 	// Replace leaflet map div with div holding the question 
 	document.getElementById('questionDiv').style.display = 'block';
-	document.getElementById('mapid').style.display = 'none';
 	// Retrieve the relevant information
 	document.getElementById("question").value = clickedQuestion.feature.properties.question;
 	document.getElementById("answer_1").value = clickedQuestion.feature.properties.answer_1;
@@ -202,7 +200,7 @@ function questionClick(clickedQuestion) {
 	document.getElementById("radioCheck2").checked = false;
 	document.getElementById("radioCheck3").checked = false;
 	document.getElementById("radioCheck4").checked = false;
-	mClicked = clickedQuestion;
+	Clicked = clickedQuestion;
 }
 
 // Error handing - ensure a radio button is checked
