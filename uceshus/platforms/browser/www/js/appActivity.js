@@ -130,6 +130,29 @@ function loadDatalayer(Geodata) {
 		mymap.fitBounds(Datalayer.getBounds());
 }
 
+/*Adapted from:
+https://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript 
+&
+https://www.geodatasource.com/developers/javascript */
+function getDistanceFromLatLonInM(lat1,lon1,lat2,lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; // Distance in km
+  var d2 = d * 1000;
+  return d2;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}
+
 function closeDistanceQuestions(){
 	checkQuestionDistance(qMarker);
 }
@@ -144,12 +167,12 @@ function checkQuestionDistance(questionMarker){
 	    currentMarker = questionMarker[i];
 	    currentMarker_latlng = currentMarker.getLatLng();
 		// Assign to the distance variable
-	    var distance = calculateDistance(currentMarker_latlng.lat, currentMarker_latlng.lng, latlng.lat, latlng.lng, 'K');
-	    if (distance <= 0.025) {
+	    var distance = getDistanceFromLatLonInM(currentMarker_latlng.lat, currentMarker_latlng.lng, latlng.lat, latlng.lng);
+	    if (distance <= 25) {
 			alert("Click Your Nearest Marker");
-			qMarker[i].on('click', onClick);
+			questionMarker[i].on('click', onClick);
         } else {
-			qMarker[i].bindPopup("Get closer to the question to answer!");
+			questionMarker[i].bindPopup("Get closer to the question to answer!");
         }
 	}
 }
