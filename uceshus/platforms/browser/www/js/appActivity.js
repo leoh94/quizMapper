@@ -134,16 +134,17 @@ function closeDistanceQuestions(){
 	checkQuestionDistance(qMarker);
 }
 // Determine the users distance from each question marker 
-function checkQuestionDistance(qMarker){
+function checkQuestionDistance(questionMarker){
 	// Get users current location
+	latlng = user.getLatLng();
 	alert("Checking if you are within 25m of a question"); 
 	/* Loop each question latlng to determine if any are within 
 	25m of the users location */
-	for(var i=0; i<qMarker.length; i++) {
-	    currentMarker = qMarker[i];
+	for(var i=0; i<questionMarker.length; i++) {
+	    currentMarker = questionMarker[i];
 	    currentMarker_latlng = currentMarker.getLatLng();
 		// Assign to the distance variable
-	    var distance = calculateDistance(currentMarker_latlng.lat, currentMarker_latlng.lng, position.coords.latitude, position.coords.longitude, 'K');
+	    var distance = calculateDistance(currentMarker_latlng.lat, currentMarker_latlng.lng, latlng.lat, latlng.lng, 'K');
 	    if (distance <= 0.025) {
 			alert("Click Your Nearest Marker");
 			qMarker[i].on('click', onClick);
