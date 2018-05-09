@@ -1,3 +1,5 @@
+//Student: 14091815
+//Adapted From: https://github.com/claireellul/cegeg077-week5app.git
 function startDataUpload() {
 	alert ("start data upload");
 

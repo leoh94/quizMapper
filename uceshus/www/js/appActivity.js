@@ -1,3 +1,5 @@
+//Student: 14091815
+//Adapted From: https://github.com/claireellul/cegeg077-week5app.git
 // the variables
 var getGeoJSON;
 // a global variable to hold the http request
