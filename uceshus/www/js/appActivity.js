@@ -112,13 +112,14 @@ function loadDatalayer(Geodata) {
 //=========== DISTANCE CALCULATION BETWEEN USER & QUESTION POINTS ===============/
 //Distance Calculation sourced from:
 //https://www.geodatasource.com/developers/javascript
+//Function takes lat/long of two locations and returns straight-line distance between them (Haversine Formula)
 function getDistanceMiles(lat1,lon1,lat2,lon2) {
-  var R = 6371; // Radius of the earth in km
-  var dLat = deg2rad(lat2-lat1);  // deg2rad below
-  var dLon = deg2rad(lon2-lon1); 
+  var R = 6371; // Radius of the earth in kilometers
+  var dLat = convertDegreesToRadians(lat2-lat1);
+  var dLon = convertDegreesToRadians(lon2-lon1); 
   var a = 
     Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.cos(convertDegreesToRadians(lat1)) * Math.cos(convertDegreesToRadians(lat2)) * 
     Math.sin(dLon/2) * Math.sin(dLon/2)
     ; 
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
@@ -127,7 +128,8 @@ function getDistanceMiles(lat1,lon1,lat2,lon2) {
   return d2;
 }
 
-function deg2rad(deg) {
+//Converts numeric degrees to Radians
+function convertDegreesToRadians(deg) {
   return deg * (Math.PI/180)
 }
 
@@ -138,15 +140,13 @@ function getDistance() {
 }
 
 function getDistanceFromPoint(position) {
-	// find the coordinates of a point using this website:
-	// these are the coordinates for Warren Street
+	// these are the coordinates for Warren Street Station:
 	var lat = 51.524616;
 	var lng = -0.13818;
-	// return the distance in kilometers
 	var distance = calculateDistance(position.coords.latitude, position.coords.longitude, lat,lng, 'K');
 	document.getElementById('showDistance').innerHTML = "Distance: " + distance;
 }
-
+//Calculate Distance Between Two Points (User & Warren Street Station)
 // code adapted from https://www.htmlgoodies.com/beyond/javascript/calculate-the-distance-between-two-points-inyour-web-apps.html
 function calculateDistance(lat1, lon1, lat2, lon2, unit) {
 	var radlat1 = Math.PI * lat1/180;
